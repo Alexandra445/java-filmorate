@@ -24,6 +24,7 @@ public class FilmController {
 
     @PostMapping
     public Film create(@RequestBody Film film) {
+
         validateFilm(film);
 
         film.setId(getNextId());
@@ -36,12 +37,20 @@ public class FilmController {
 
     @PutMapping
     public Film update(@RequestBody Film film) {
-        validateFilm(film);
 
         if (film.getId() == null) {
             log.error("Не указан id фильма");
             throw new ValidationException("Id должен быть указан");
         }
+
+        Film existingFilm = films.get(film.getId());
+
+        if (existingFilm == null) {
+            log.error("Фильм не найден");
+            throw new ValidationException("Фильм не найден");
+        }
+
+        validateFilm(film);
 
         films.put(film.getId(), film);
 
@@ -63,7 +72,8 @@ public class FilmController {
             throw new ValidationException("Описание больше 200 символов");
         }
 
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate() == null
+                || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.error("Некорректная дата релиза");
             throw new ValidationException("Дата релиза некорректна");
         }

@@ -24,14 +24,11 @@ public class UserController {
 
     @PostMapping
     public User create(@RequestBody User user) {
+
+        normalizeUser(user);
         validateUser(user);
 
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-
         user.setId(getNextId());
-
         users.put(user.getId(), user);
 
         log.info("Создан пользователь: {}", user);
@@ -41,22 +38,33 @@ public class UserController {
 
     @PutMapping
     public User update(@RequestBody User user) {
-        validateUser(user);
 
         if (user.getId() == null) {
             log.error("Не указан id пользователя");
             throw new ValidationException("Id должен быть указан");
         }
 
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
+        User existingUser = users.get(user.getId());
+
+        if (existingUser == null) {
+            log.error("Пользователь не найден");
+            throw new ValidationException("Пользователь не найден");
         }
+
+        normalizeUser(user);
+        validateUser(user);
 
         users.put(user.getId(), user);
 
         log.info("Обновлён пользователь: {}", user);
 
         return user;
+    }
+
+    private void normalizeUser(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
     }
 
     private void validateUser(User user) {
@@ -75,8 +83,9 @@ public class UserController {
             throw new ValidationException("Некорректный логин");
         }
 
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.error("Дата рождения находится в будущем");
+        if (user.getBirthday() == null
+                || user.getBirthday().isAfter(LocalDate.now())) {
+            log.error("Дата рождения некорректна");
             throw new ValidationException("Дата рождения не может быть в будущем");
         }
     }
