@@ -61,6 +61,11 @@ public class FilmController {
 
     private void validateFilm(Film film) {
 
+        if (film == null) {
+            log.error("Пустое тело запроса");
+            throw new ValidationException("Тело запроса не должно быть пустым");
+        }
+
         if (film.getName() == null || film.getName().isBlank()) {
             log.error("Название фильма пустое");
             throw new ValidationException("Название фильма не может быть пустым");
@@ -78,7 +83,7 @@ public class FilmController {
             throw new ValidationException("Дата релиза некорректна");
         }
 
-        if (film.getDuration() <= 0) {
+        if (film.getDuration() == null || film.getDuration() <= 0) {
             log.error("Продолжительность фильма должна быть положительной");
             throw new ValidationException("Продолжительность должна быть положительной");
         }

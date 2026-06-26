@@ -79,4 +79,10 @@ class FilmControllerTest {
         assertThrows(ValidationException.class,
                 () -> controller.create(film));
     }
+
+    @Test
+    void shouldFailWhenFilmIsNull() {
+        assertThrows(ValidationException.class,
+                () -> controller.create(null));
+    }
 }
