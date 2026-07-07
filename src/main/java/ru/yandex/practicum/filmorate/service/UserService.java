@@ -119,6 +119,7 @@ public class UserService {
                 friendId
         );
     }
+    
     public Collection<User> getFriends(Integer id) {
 
         User user = userStorage.findById(id);
