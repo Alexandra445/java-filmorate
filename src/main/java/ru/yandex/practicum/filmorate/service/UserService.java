@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class UserService {
 
@@ -81,24 +83,49 @@ public class UserService {
     }
 
     public void addFriend(Integer id, Integer friendId) {
+
         User user = userStorage.findById(id);
         User friend = userStorage.findById(friendId);
+
+        if (user == null || friend == null) {
+            throw new NotFoundException("Пользователь не найден");
+        }
 
         user.getFriends().add(friendId);
         friend.getFriends().add(id);
+
+        log.info(
+                "Пользователь {} добавил пользователя {} в друзья",
+                id,
+                friendId
+        );
     }
 
     public void removeFriend(Integer id, Integer friendId) {
+
         User user = userStorage.findById(id);
         User friend = userStorage.findById(friendId);
 
+        if (user == null || friend == null) {
+            throw new NotFoundException("Пользователь не найден");
+        }
+
         user.getFriends().remove(friendId);
         friend.getFriends().remove(id);
-    }
 
+        log.info(
+                "Пользователь {} удалил пользователя {} из друзей",
+                id,
+                friendId
+        );
+    }
     public Collection<User> getFriends(Integer id) {
 
         User user = userStorage.findById(id);
+
+        if (user == null) {
+            throw new NotFoundException("Пользователь не найден");
+        }
 
         return user.getFriends().stream()
                 .map(userStorage::findById)
@@ -108,8 +135,11 @@ public class UserService {
     public Collection<User> getCommonFriends(Integer id, Integer otherId) {
 
         User user = userStorage.findById(id);
-
         User other = userStorage.findById(otherId);
+
+        if (user == null || other == null) {
+            throw new NotFoundException("Пользователь не найден");
+        }
 
         return user.getFriends().stream()
                 .filter(other.getFriends()::contains)

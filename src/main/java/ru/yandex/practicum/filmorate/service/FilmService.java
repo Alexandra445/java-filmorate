@@ -1,20 +1,24 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class FilmService {
 
     private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
     public Collection<Film> findAll() {
         return filmStorage.findAll();
@@ -81,10 +85,16 @@ public class FilmService {
         Film film = filmStorage.findById(filmId);
 
         if (film == null) {
-            throw new ValidationException("Фильм не найден");
+            throw new NotFoundException("Фильм не найден");
         }
 
         film.getLikes().add(userId);
+
+        log.info(
+                "Пользователь {} поставил лайк фильму {}",
+                userId,
+                filmId
+        );
     }
 
 
@@ -93,12 +103,17 @@ public class FilmService {
         Film film = filmStorage.findById(filmId);
 
         if (film == null) {
-            throw new ValidationException("Фильм не найден");
+            throw new NotFoundException("Фильм не найден");
         }
 
         film.getLikes().remove(userId);
-    }
 
+        log.info(
+                "Пользователь {} убрал лайк с фильма {}",
+                userId,
+                filmId
+        );
+    }
 
     public Collection<Film> getPopularFilms(Integer count) {
 
