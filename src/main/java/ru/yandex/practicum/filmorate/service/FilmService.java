@@ -88,6 +88,10 @@ public class FilmService {
             throw new NotFoundException("Фильм не найден");
         }
 
+        if (userStorage.findById(userId) == null) {
+            throw new NotFoundException("Пользователь не найден");
+        }
+
         film.getLikes().add(userId);
 
         log.info(
@@ -104,6 +108,10 @@ public class FilmService {
 
         if (film == null) {
             throw new NotFoundException("Фильм не найден");
+        }
+
+        if (userStorage.findById(userId) == null) {
+            throw new NotFoundException("Пользователь не найден");
         }
 
         film.getLikes().remove(userId);
