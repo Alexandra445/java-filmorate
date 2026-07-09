@@ -26,8 +26,15 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        users.put(user.getId(), user);
-        return user;
+
+        User oldUser = users.get(user.getId());
+
+        oldUser.setEmail(user.getEmail());
+        oldUser.setLogin(user.getLogin());
+        oldUser.setName(user.getName());
+        oldUser.setBirthday(user.getBirthday());
+
+        return oldUser;
     }
 
     @Override
@@ -43,5 +50,10 @@ public class InMemoryUserStorage implements UserStorage {
                 .orElse(0);
 
         return ++currentMaxId;
+    }
+
+    @Override
+    public void delete(Integer id) {
+        users.remove(id);
     }
 }

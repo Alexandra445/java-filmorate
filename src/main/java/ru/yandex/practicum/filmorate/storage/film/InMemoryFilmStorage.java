@@ -26,8 +26,15 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        films.put(film.getId(), film);
-        return film;
+
+        Film oldFilm = films.get(film.getId());
+
+        oldFilm.setName(film.getName());
+        oldFilm.setDescription(film.getDescription());
+        oldFilm.setReleaseDate(film.getReleaseDate());
+        oldFilm.setDuration(film.getDuration());
+
+        return oldFilm;
     }
 
     @Override
@@ -43,5 +50,10 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .orElse(0);
 
         return ++currentMaxId;
+    }
+
+    @Override
+    public void delete(Integer id) {
+        films.remove(id);
     }
 }

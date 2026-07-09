@@ -14,4 +14,6 @@ public interface UserStorage {
 
     User findById(Integer id);
 
+    void delete(Integer id);
+
 }
