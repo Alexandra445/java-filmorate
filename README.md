@@ -36,9 +36,15 @@ WHERE id = 1;
 Получение фильма по id
 
 ```sql
-SELECT *
-FROM films
-WHERE id = 1;
+SELECT f.id,
+       f.name,
+       f.description,
+       f.release_date,
+       f.duration,
+       m.name AS mpa_rating
+FROM films f
+JOIN mpa m ON f.mpa_id = m.id
+WHERE f.id = 1;
 ```
 
 Получение друзей пользователя
