@@ -8,11 +8,13 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 
 @Repository
 @Qualifier("filmDbStorage")
@@ -24,8 +26,18 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> findAll() {
+        
+        Collection<Film> films = jdbcTemplate.query(
+                "SELECT * FROM films",
+                mapper
+        );
 
-        return jdbcTemplate.query("SELECT * FROM films", mapper);
+        for (Film film : films) {
+            loadMpa(film);
+            loadGenres(film);
+        }
+
+        return films;
     }
 
     @Override
@@ -33,11 +45,18 @@ public class FilmDbStorage implements FilmStorage {
 
         String sql = "SELECT * FROM films WHERE id=?";
 
-        Film film = jdbcTemplate.query(sql, mapper, id).stream().findFirst().orElse(null);
+        Film film = jdbcTemplate.query(sql, mapper, id)
+                .stream()
+                .findFirst()
+                .orElse(null);
+
+        if (film != null) {
+            loadMpa(film);
+            loadGenres(film);
+        }
 
         return film;
     }
-
     @Override
     public Film create(Film film) {
 
@@ -152,5 +171,50 @@ public class FilmDbStorage implements FilmStorage {
                 """;
 
         return jdbcTemplate.query(sql, mapper, count);
+    }
+
+    private void loadMpa(Film film) {
+        String sql = """
+            SELECT id, name
+            FROM mpa
+            WHERE id = ?
+            """;
+
+        film.setMpa(
+                jdbcTemplate.queryForObject(
+                        sql,
+                        (rs, rowNum) -> {
+                            Mpa mpa = new Mpa();
+                            mpa.setId(rs.getInt("id"));
+                            mpa.setName(rs.getString("name"));
+                            return mpa;
+                        },
+                        film.getMpa().getId()
+                )
+        );
+    }
+
+    private void loadGenres(Film film) {
+
+        String sql = """
+            SELECT g.id, g.name
+            FROM genres g
+            JOIN film_genres fg ON g.id = fg.genre_id
+            WHERE fg.film_id = ?
+            ORDER BY g.id
+            """;
+
+        film.setGenres(new LinkedHashSet<>(
+                jdbcTemplate.query(
+                        sql,
+                        (rs, rowNum) -> {
+                            Genre genre = new Genre();
+                            genre.setId(rs.getInt("id"));
+                            genre.setName(rs.getString("name"));
+                            return genre;
+                        },
+                        film.getId()
+                )
+        ));
     }
 }
