@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -12,13 +12,18 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.time.LocalDate;
 import java.util.Collection;
 
-@Service
 @Slf4j
-@RequiredArgsConstructor
+@Service
 public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+
+
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, @Qualifier("userDbStorage") UserStorage userStorage) {
+        this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
+    }
 
     public Collection<Film> findAll() {
         return filmStorage.findAll();
@@ -54,13 +59,11 @@ public class FilmService {
             throw new ValidationException("Название фильма не может быть пустым");
         }
 
-        if (film.getDescription() != null
-                && film.getDescription().length() > 200) {
+        if (film.getDescription() != null && film.getDescription().length() > 200) {
             throw new ValidationException("Описание больше 200 символов");
         }
 
-        if (film.getReleaseDate() == null
-                || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new ValidationException("Дата релиза некорректна");
         }
 
@@ -92,13 +95,9 @@ public class FilmService {
             throw new NotFoundException("Пользователь не найден");
         }
 
-        film.getLikes().add(userId);
+        filmStorage.addLike(filmId, userId);
 
-        log.info(
-                "Пользователь {} поставил лайк фильму {}",
-                userId,
-                filmId
-        );
+        log.info("Пользователь {} поставил лайк фильму {}", userId, filmId);
     }
 
 
@@ -114,25 +113,12 @@ public class FilmService {
             throw new NotFoundException("Пользователь не найден");
         }
 
-        film.getLikes().remove(userId);
+        filmStorage.removeLike(filmId, userId);
 
-        log.info(
-                "Пользователь {} убрал лайк с фильма {}",
-                userId,
-                filmId
-        );
+        log.info("Пользователь {} убрал лайк с фильма {}", userId, filmId);
     }
 
     public Collection<Film> getPopularFilms(Integer count) {
-
-        return filmStorage.findAll()
-                .stream()
-                .sorted((film1, film2) ->
-                        Integer.compare(
-                                film2.getLikes().size(),
-                                film1.getLikes().size()
-                        ))
-                .limit(count)
-                .toList();
+        return filmStorage.getPopularFilms(count);
     }
 }

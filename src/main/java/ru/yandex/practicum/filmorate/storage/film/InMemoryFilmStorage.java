@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -7,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@Qualifier("filmMemoryStorage")
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
 
@@ -43,11 +45,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     private Integer getNextId() {
-        int currentMaxId = films.keySet()
-                .stream()
-                .mapToInt(id -> id)
-                .max()
-                .orElse(0);
+        int currentMaxId = films.keySet().stream().mapToInt(id -> id).max().orElse(0);
 
         return ++currentMaxId;
     }
@@ -55,5 +53,31 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public void delete(Integer id) {
         films.remove(id);
+    }
+
+    @Override
+    public void addLike(Integer filmId, Integer userId) {
+
+        Film film = films.get(filmId);
+
+        if (film != null) {
+            film.getLikes().add(userId);
+        }
+    }
+
+    @Override
+    public void removeLike(Integer filmId, Integer userId) {
+
+        Film film = films.get(filmId);
+
+        if (film != null) {
+            film.getLikes().remove(userId);
+        }
+    }
+
+    @Override
+    public Collection<Film> getPopularFilms(Integer count) {
+
+        return films.values().stream().sorted((film1, film2) -> Integer.compare(film2.getLikes().size(), film1.getLikes().size())).limit(count).toList();
     }
 }
