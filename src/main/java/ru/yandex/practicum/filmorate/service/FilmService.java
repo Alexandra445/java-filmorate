@@ -6,7 +6,10 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
@@ -18,11 +21,19 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final GenreStorage genreStorage;
+    private final MpaStorage mpaStorage;
 
-
-    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, @Qualifier("userDbStorage") UserStorage userStorage) {
+    public FilmService(
+            @Qualifier("filmDbStorage") FilmStorage filmStorage,
+            @Qualifier("userDbStorage") UserStorage userStorage,
+            @Qualifier("genreDbStorage") GenreStorage genreStorage,
+            @Qualifier("mpaDbStorage") MpaStorage mpaStorage
+    ) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.genreStorage = genreStorage;
+        this.mpaStorage = mpaStorage;
     }
 
     public Collection<Film> findAll() {
@@ -69,6 +80,22 @@ public class FilmService {
 
         if (film.getDuration() == null || film.getDuration() <= 0) {
             throw new ValidationException("Продолжительность должна быть положительной");
+        }
+
+        if (film.getMpa() == null || film.getMpa().getId() == null) {
+            throw new ValidationException("MPA должен быть указан");
+        }
+
+        if (mpaStorage.findById(film.getMpa().getId()) == null) {
+            throw new NotFoundException("Рейтинг MPA не найден");
+        }
+
+        if (film.getGenres() != null) {
+            for (Genre genre : film.getGenres()) {
+                if (genreStorage.findById(genre.getId()) == null) {
+                    throw new NotFoundException("Жанр не найден");
+                }
+            }
         }
     }
 
