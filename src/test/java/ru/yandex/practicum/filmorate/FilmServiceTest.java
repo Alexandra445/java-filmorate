@@ -2,87 +2,126 @@ package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FilmControllerTest {
+class FilmServiceTest {
 
-    private FilmController controller;
+    private FilmService service;
+
 
     @BeforeEach
     void setUp() {
-        controller = new FilmController();
+        service = new FilmService(
+                new InMemoryFilmStorage(),
+                new InMemoryUserStorage()
+        );
     }
+
 
     @Test
     void shouldCreateValidFilm() {
+
         Film film = new Film();
+
         film.setName("Film");
-        film.setDescription("A".repeat(200));
+        film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(1895, 12, 28));
         film.setDuration(100);
 
-        Film result = controller.create(film);
+
+        Film result = service.create(film);
+
 
         assertNotNull(result.getId());
     }
 
+
     @Test
     void shouldFailWhenNameEmpty() {
+
         Film film = new Film();
+
         film.setName("");
         film.setDescription("desc");
         film.setReleaseDate(LocalDate.now());
         film.setDuration(100);
 
-        assertThrows(ValidationException.class,
-                () -> controller.create(film));
+
+        assertThrows(
+                ValidationException.class,
+                () -> service.create(film)
+        );
     }
+
 
     @Test
     void shouldFailWhenTooLongDescription() {
+
         Film film = new Film();
+
         film.setName("Film");
         film.setDescription("A".repeat(201));
         film.setReleaseDate(LocalDate.now());
         film.setDuration(100);
 
-        assertThrows(ValidationException.class,
-                () -> controller.create(film));
+
+        assertThrows(
+                ValidationException.class,
+                () -> service.create(film)
+        );
     }
+
 
     @Test
     void shouldFailWhenReleaseDateTooEarly() {
+
         Film film = new Film();
+
         film.setName("Film");
         film.setDescription("desc");
         film.setReleaseDate(LocalDate.of(1800, 1, 1));
         film.setDuration(100);
 
-        assertThrows(ValidationException.class,
-                () -> controller.create(film));
+
+        assertThrows(
+                ValidationException.class,
+                () -> service.create(film)
+        );
     }
+
 
     @Test
     void shouldFailWhenDurationZero() {
+
         Film film = new Film();
+
         film.setName("Film");
         film.setDescription("desc");
         film.setReleaseDate(LocalDate.now());
         film.setDuration(0);
 
-        assertThrows(ValidationException.class,
-                () -> controller.create(film));
+
+        assertThrows(
+                ValidationException.class,
+                () -> service.create(film)
+        );
     }
+
 
     @Test
     void shouldFailWhenFilmIsNull() {
-        assertThrows(ValidationException.class,
-                () -> controller.create(null));
+
+        assertThrows(
+                ValidationException.class,
+                () -> service.create(null)
+        );
     }
 }
