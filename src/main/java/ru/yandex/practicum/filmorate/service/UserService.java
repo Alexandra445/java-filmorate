@@ -1,12 +1,10 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.FriendshipStatus;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -20,9 +18,7 @@ public class UserService {
     private final UserStorage userStorage;
 
 
-    public UserService(
-            @Qualifier("userDbStorage") UserStorage userStorage
-    ) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
@@ -62,20 +58,15 @@ public class UserService {
 
     private void validateUser(User user) {
 
-        if (user.getEmail() == null
-                || user.getEmail().isBlank()
-                || !user.getEmail().contains("@")) {
+        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
             throw new ValidationException("Некорректный email");
         }
 
-        if (user.getLogin() == null
-                || user.getLogin().isBlank()
-                || user.getLogin().contains(" ")) {
+        if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
             throw new ValidationException("Некорректный логин");
         }
 
-        if (user.getBirthday() == null
-                || user.getBirthday().isAfter(LocalDate.now())) {
+        if (user.getBirthday() == null || user.getBirthday().isAfter(LocalDate.now())) {
             throw new ValidationException("Дата рождения не может быть в будущем");
         }
     }
@@ -97,11 +88,7 @@ public class UserService {
 
         userStorage.addFriend(id, friendId);
 
-        log.info(
-                "Пользователь {} добавил пользователя {} в друзья",
-                id,
-                friendId
-        );
+        log.info("Пользователь {} добавил пользователя {} в друзья", id, friendId);
     }
 
     public void removeFriend(Integer id, Integer friendId) {
@@ -111,11 +98,7 @@ public class UserService {
 
         userStorage.removeFriend(id, friendId);
 
-        log.info(
-                "Пользователь {} удалил пользователя {} из друзей",
-                id,
-                friendId
-        );
+        log.info("Пользователь {} удалил пользователя {} из друзей", id, friendId);
     }
 
     public Collection<User> getFriends(Integer id) {
