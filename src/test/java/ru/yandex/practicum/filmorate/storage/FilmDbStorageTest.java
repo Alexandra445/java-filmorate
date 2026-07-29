@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
@@ -17,10 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @JdbcTest
 @AutoConfigureTestDatabase
-@Import({
-        FilmDbStorage.class,
-        UserDbStorage.class
-})
+@Import({FilmDbStorage.class, UserDbStorage.class})
 class FilmDbStorageTest {
 
     @Autowired
@@ -28,6 +26,9 @@ class FilmDbStorageTest {
 
     @Autowired
     private UserDbStorage userStorage;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Test
     void testCreateFilm() {
@@ -155,8 +156,7 @@ class FilmDbStorageTest {
 
         filmStorage.addLike(film.getId(), user.getId());
 
-        assertThat(filmStorage.getPopularFilms(10))
-                .hasSize(1);
+        assertThat(filmStorage.getPopularFilms(10)).hasSize(1);
     }
 
     @Test
@@ -185,7 +185,13 @@ class FilmDbStorageTest {
         filmStorage.addLike(film.getId(), user.getId());
         filmStorage.removeLike(film.getId(), user.getId());
 
-        assertThat(filmStorage.getPopularFilms(10))
-                .hasSize(1);
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*)
+                FROM likes
+                WHERE film_id = ?
+                  AND user_id = ?
+                """, Integer.class, film.getId(), user.getId());
+
+        assertThat(count).isZero();
     }
 }

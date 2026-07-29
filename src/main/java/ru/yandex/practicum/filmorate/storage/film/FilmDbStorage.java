@@ -165,7 +165,14 @@ public class FilmDbStorage implements FilmStorage {
                 LIMIT ?
                 """;
 
-        return jdbcTemplate.query(sql, mapper, count);
+        Collection<Film> films = jdbcTemplate.query(sql, mapper, count);
+
+        for (Film film : films) {
+            loadMpa(film);
+            loadGenres(film);
+        }
+
+        return films;
     }
 
     private void loadMpa(Film film) {
