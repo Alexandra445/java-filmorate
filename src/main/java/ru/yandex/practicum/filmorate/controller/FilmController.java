@@ -48,4 +48,8 @@ public class FilmController {
     public Collection<Film> getPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
         return filmService.getPopularFilms(count);
     }
+    @GetMapping("/common")
+    public Collection<Film> getCommonFilms(@RequestParam Integer userId, @RequestParam Integer friendId) {
+        return filmService.getCommonFilms(userId, friendId);
+    }
 }

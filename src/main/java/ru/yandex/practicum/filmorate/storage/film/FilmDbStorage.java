@@ -207,4 +207,15 @@ public class FilmDbStorage implements FilmStorage {
             return genre;
         }, film.getId())));
     }
+
+    @Override
+    public Collection<Film> getCommonFilms(Integer userId, Integer friendId) {
+        String sql = "SELECT f.* FROM films f " +
+                "JOIN likes l1 ON f.id = l1.film_id AND l1.user_id = ? " +
+                "JOIN likes l2 ON f.id = l2.film_id AND l2.user_id = ? " +
+                "LEFT JOIN (SELECT film_id, COUNT(user_id) AS score FROM likes GROUP BY film_id) rate " +
+                "ON f.id = rate.film_id " +
+                "ORDER BY COALESCE(rate.score, 0) DESC";
+        return jdbcTemplate.query(sql, mapper, userId, friendId);
+    }
 }
