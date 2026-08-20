@@ -76,12 +76,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> getPopularFilms(Integer count) {
-
-        return films.values().stream().sorted((film1, film2) -> Integer.compare(film2.getLikes().size(), film1.getLikes().size())).limit(count).toList();
+    public Collection<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        throw new UnsupportedOperationException("Not implemented for In-Memory storage");
     }
 
-    @Override
+
+        @Override
     public Collection<Film> getCommonFilms(Integer userId, Integer friendId) {
         throw new UnsupportedOperationException("Not implemented for In-Memory storage");
     }
