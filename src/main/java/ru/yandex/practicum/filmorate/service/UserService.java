@@ -115,6 +115,7 @@ public class UserService {
 
         return userStorage.getCommonFriends(id, otherId);
     }
+
     public void deleteUser(Integer id) {
         getUser(id);
         userStorage.delete(id);

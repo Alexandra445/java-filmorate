@@ -80,7 +80,6 @@ public class InMemoryFilmStorage implements FilmStorage {
         throw new UnsupportedOperationException("Not implemented for In-Memory storage");
     }
 
-
         @Override
     public Collection<Film> getCommonFilms(Integer userId, Integer friendId) {
         throw new UnsupportedOperationException("Not implemented for In-Memory storage");
