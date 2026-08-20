@@ -29,6 +29,13 @@ public class FilmController {
         return filmService.update(film);
     }
 
+    @GetMapping("/director/{directorId}")
+    public Collection<Film> getFilmsByDirector(
+            @PathVariable Integer directorId,
+            @RequestParam String sortBy) {
+        return filmService.getFilmsByDirector(directorId, sortBy);
+    }
+
     @GetMapping("/{id}")
     public Film getFilm(@PathVariable Integer id) {
         return filmService.getFilm(id);
