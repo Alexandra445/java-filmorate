@@ -13,7 +13,7 @@ import java.util.List;
 
 @Repository
 @Qualifier("reviewDbStorage")
-public class ReviewDbStorage extends BaseStorage<Review> implements ReviewStorage {
+public class ReviewDbStorage extends BaseStorage<Review> implements ReviewStorage, ReviewEvaluationStorage {
 
     private static final String ADD_REVIEW = "INSERT INTO reviews(content, is_positive, user_id, film_id) " +
             "VALUES (?, ?, ?, ?)";
@@ -62,6 +62,16 @@ public class ReviewDbStorage extends BaseStorage<Review> implements ReviewStorag
             LIMIT ?;
             """;
 
+    private static final String DELETE_EVALUATION = "DELETE FROM reviews_evaluation " +
+            "WHERE review_id = ? AND user_id = ?;";
+    private static final String DELETE_LIKE = "DELETE FROM reviews_evaluation " +
+            "WHERE review_id = ? AND user_id = ? AND review_evaluation = TRUE;";
+    private static final String DELETE_DISLIKE = "DELETE FROM reviews_evaluation " +
+            "WHERE review_id = ? AND user_id = ? AND review_evaluation = FALSE;";
+
+    private static final String PUT_EVALUATION = "INSERT INTO reviews_evaluation(review_id, user_id, review_evaluation) " +
+            "VALUES(?, ?, ?);";
+
 
     public ReviewDbStorage(JdbcTemplate jdbcTemplate, RowMapper<Review> rowMapper) {
         super(jdbcTemplate, rowMapper);
@@ -100,5 +110,30 @@ public class ReviewDbStorage extends BaseStorage<Review> implements ReviewStorag
     @Override
     public Collection<Review> findAllReviews(int count) {
         return findMany(FIND_ALL_REVIEWS, count);
+    }
+
+    @Override
+    public void putLike(Long reviewId, Long userId) {
+        insertWithoutId(PUT_EVALUATION, reviewId, userId, true);
+    }
+
+    @Override
+    public void putDislike(Long reviewId, Long userId) {
+        insertWithoutId(PUT_EVALUATION, reviewId, userId, false);
+    }
+
+    @Override
+    public boolean deleteLike(Long reviewID, Long userId) {
+        return delete(DELETE_LIKE, reviewID, userId);
+    }
+
+    @Override
+    public boolean deleteDislike(Long reviewId, Long userId) {
+        return delete(DELETE_DISLIKE, reviewId, userId);
+    }
+
+    @Override
+    public boolean deleteEvaluation(Long reviewId, Long userId) {
+        return delete(DELETE_EVALUATION, reviewId, userId);
     }
 }
