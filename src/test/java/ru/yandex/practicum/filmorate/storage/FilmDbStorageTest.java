@@ -156,7 +156,12 @@ class FilmDbStorageTest {
 
         filmStorage.addLike(film.getId(), user.getId());
 
-        assertThat(filmStorage.getPopularFilms(10)).hasSize(1);
+        int countLimit = 10;
+        int expectedSize = 1;
+        Integer genreId = null;
+        Integer year = null;
+
+        assertThat(filmStorage.getPopularFilms(countLimit, genreId, year)).hasSize(expectedSize);
     }
 
     @Test
