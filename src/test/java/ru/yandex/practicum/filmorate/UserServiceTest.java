@@ -19,9 +19,7 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
 
-        service = new UserService(
-                new InMemoryUserStorage()
-        );
+        service = new UserService(new InMemoryUserStorage(), null);
     }
 
 

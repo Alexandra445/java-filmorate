@@ -7,6 +7,10 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.storage.event.EventStorage;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.Operation;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -17,9 +21,11 @@ public class UserService {
 
     private final UserStorage userStorage;
 
+    private final EventStorage eventStorage;
 
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, EventStorage eventStorage) {
         this.userStorage = userStorage;
+        this.eventStorage = eventStorage;
     }
 
     public Collection<User> findAll() {
@@ -89,6 +95,7 @@ public class UserService {
         userStorage.addFriend(id, friendId);
 
         log.info("Пользователь {} добавил пользователя {} в друзья", id, friendId);
+        eventStorage.addEvent(new Event(null, System.currentTimeMillis(), id, EventType.FRIEND, Operation.ADD, friendId));
     }
 
     public void removeFriend(Integer id, Integer friendId) {
@@ -99,6 +106,7 @@ public class UserService {
         userStorage.removeFriend(id, friendId);
 
         log.info("Пользователь {} удалил пользователя {} из друзей", id, friendId);
+        eventStorage.addEvent(new Event(null, System.currentTimeMillis(), id, EventType.FRIEND, Operation.REMOVE, friendId));
     }
 
     public Collection<User> getFriends(Integer id) {
@@ -115,8 +123,15 @@ public class UserService {
 
         return userStorage.getCommonFriends(id, otherId);
     }
+
+
     public void deleteUser(Integer id) {
         getUser(id);
         userStorage.delete(id);
+    }
+
+    public Collection<Event> getFeed(Integer id) {
+        getUser(id);
+        return eventStorage.getFeedByUserId(id);
     }
 }

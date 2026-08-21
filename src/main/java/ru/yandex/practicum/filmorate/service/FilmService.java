@@ -11,6 +11,11 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.storage.event.EventStorage;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.Operation;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -24,12 +29,16 @@ public class FilmService {
     private final GenreStorage genreStorage;
     private final MpaStorage mpaStorage;
 
+    private final EventStorage eventStorage;
+
     public FilmService(
             @Qualifier("filmDbStorage") FilmStorage filmStorage,
             @Qualifier("userDbStorage") UserStorage userStorage,
-            @Qualifier("genreDbStorage") GenreStorage genreStorage,
-            @Qualifier("mpaDbStorage") MpaStorage mpaStorage
+            GenreStorage genreStorage,
+            @Qualifier("mpaDbStorage") MpaStorage mpaStorage,
+            EventStorage eventStorage
     ) {
+        this.eventStorage = eventStorage;
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.genreStorage = genreStorage;
@@ -125,6 +134,7 @@ public class FilmService {
         filmStorage.addLike(filmId, userId);
 
         log.info("Пользователь {} поставил лайк фильму {}", userId, filmId);
+        eventStorage.addEvent(new Event(null, System.currentTimeMillis(), userId, EventType.LIKE, Operation.ADD, filmId));
     }
 
 
@@ -143,6 +153,7 @@ public class FilmService {
         filmStorage.removeLike(filmId, userId);
 
         log.info("Пользователь {} убрал лайк с фильма {}", userId, filmId);
+        eventStorage.addEvent(new Event(null, System.currentTimeMillis(), userId, EventType.LIKE, Operation.REMOVE, filmId));
     }
 
     public Collection<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
