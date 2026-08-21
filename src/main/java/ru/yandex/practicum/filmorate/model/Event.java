@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.Objects;
 
 public class Event {
@@ -35,53 +34,29 @@ public class Event {
         this.entityId = entityId;
     }
 
-    public Integer getEventId() {
-        return eventId;
-    }
+    @JsonProperty("eventId")
+    public Integer getEventId() { return eventId; }
+    public void setEventId(Integer eventId) { this.eventId = eventId; }
 
-    public void setEventId(Integer eventId) {
-        this.eventId = eventId;
-    }
+    @JsonProperty("timestamp")
+    public Long getTimestamp() { return timestamp; }
+    public void setTimestamp(Long timestamp) { this.timestamp = timestamp; }
 
-    public Long getTimestamp() {
-        return timestamp;
-    }
+    @JsonProperty("userId")
+    public Integer getUserId() { return userId; }
+    public void setUserId(Integer userId) { this.userId = userId; }
 
-    public void setTimestamp(Long timestamp) {
-        this.timestamp = timestamp;
-    }
+    @JsonProperty("eventType")
+    public EventType getEventType() { return eventType; }
+    public void setEventType(EventType eventType) { this.eventType = eventType; }
 
-    public Integer getUserId() {
-        return userId;
-    }
+    @JsonProperty("operation")
+    public Operation getOperation() { return operation; }
+    public void setOperation(Operation operation) { this.operation = operation; }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public EventType getEventType() {
-        return eventType;
-    }
-
-    public void setEventType(EventType eventType) {
-        this.eventType = eventType;
-    }
-
-    public Operation getOperation() {
-        return operation;
-    }
-
-    public void setOperation(Operation operation) {
-        this.operation = operation;
-    }
-
-    public Integer getEntityId() {
-        return entityId;
-    }
-
-    public void setEntityId(Integer entityId) {
-        this.entityId = entityId;
-    }
+    @JsonProperty("entityId")
+    public Integer getEntityId() { return entityId; }
+    public void setEntityId(Integer entityId) { this.entityId = entityId; }
 
     @Override
     public boolean equals(Object o) {
