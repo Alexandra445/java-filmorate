@@ -2,7 +2,9 @@ package ru.yandex.practicum.filmorate.model;
 
 import java.util.Objects;
 
+@com.fasterxml.jackson.annotation.JsonAutoDetect(fieldVisibility = com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY)
 public class Event {
+
     private Integer eventId;
     private Long timestamp;
     private Integer userId;
