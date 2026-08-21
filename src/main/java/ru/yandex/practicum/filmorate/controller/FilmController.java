@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-
+import org.springframework.http.HttpStatus;
 import java.util.Collection;
 
 @RestController
@@ -58,6 +58,7 @@ public class FilmController {
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFilm(@PathVariable Integer id) {
         filmService.deleteFilm(id);
     }
