@@ -1,32 +1,27 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
 public class Event {
-    @JsonProperty("eventId")
-    private Integer eventId;
+    private final Integer eventId;
+    private final Long timestamp;
+    private final Integer userId;
+    private final EventType eventType;
+    private final Operation operation;
+    private final Integer entityId;
 
-    @JsonProperty("timestamp")
-    private Long timestamp;
-
-    @JsonProperty("userId")
-    private Integer userId;
-
-    @JsonProperty("eventType")
-    private EventType eventType;
-
-    @JsonProperty("operation")
-    private Operation operation;
-
-    @JsonProperty("entityId")
-    private Integer entityId;
-
-    public Event() {
-    }
-
-    public Event(Integer eventId, Long timestamp, Integer userId, EventType eventType, Operation operation, Integer entityId) {
+    @JsonCreator
+    public Event(
+            @JsonProperty("eventId") Integer eventId,
+            @JsonProperty("timestamp") Long timestamp,
+            @JsonProperty("userId") Integer userId,
+            @JsonProperty("eventType") EventType eventType,
+            @JsonProperty("operation") Operation operation,
+            @JsonProperty("entityId") Integer entityId
+    ) {
         this.eventId = eventId;
         this.timestamp = timestamp;
         this.userId = userId;
@@ -35,64 +30,38 @@ public class Event {
         this.entityId = entityId;
     }
 
-    @JsonProperty("eventId")
     public Integer getEventId() {
         return eventId;
     }
 
-    public void setEventId(Integer eventId) {
-        this.eventId = eventId;
-    }
-
-    @JsonProperty("timestamp")
     public Long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    @JsonProperty("userId")
     public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    @JsonProperty("eventType")
     public EventType getEventType() {
         return eventType;
     }
 
-    public void setEventType(EventType eventType) {
-        this.eventType = eventType;
-    }
-
-    @JsonProperty("operation")
     public Operation getOperation() {
         return operation;
     }
 
-    public void setOperation(Operation operation) {
-        this.operation = operation;
-    }
-
-    @JsonProperty("entityId")
     public Integer getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(Integer entityId) {
-        this.entityId = entityId;
-    }
-
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Event event = (Event) o;
         return Objects.equals(eventId, event.eventId);
     }
