@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 
 public class Event {
@@ -34,23 +35,53 @@ public class Event {
         this.entityId = entityId;
     }
 
-    public Integer getEventId() { return eventId; }
-    public void setEventId(Integer eventId) { this.eventId = eventId; }
+    public Integer getEventId() {
+        return eventId;
+    }
 
-    public Long getTimestamp() { return timestamp; }
-    public void setTimestamp(Long timestamp) { this.timestamp = timestamp; }
+    public void setEventId(Integer eventId) {
+        this.eventId = eventId;
+    }
 
-    public Integer getUserId() { return userId; }
-    public void setUserId(Integer userId) { this.userId = userId; }
+    public Long getTimestamp() {
+        return timestamp;
+    }
 
-    public EventType getEventType() { return eventType; }
-    public void setEventType(EventType eventType) { this.eventType = eventType; }
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = timestamp;
+    }
 
-    public Operation getOperation() { return operation; }
-    public void setOperation(Operation operation) { this.operation = operation; }
+    public Integer getUserId() {
+        return userId;
+    }
 
-    public Integer getEntityId() { return entityId; }
-    public void setEntityId(Integer entityId) { this.entityId = entityId; }
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public EventType getEventType() {
+        return eventType;
+    }
+
+    public void setEventType(EventType eventType) {
+        this.eventType = eventType;
+    }
+
+    public Operation getOperation() {
+        return operation;
+    }
+
+    public void setOperation(Operation operation) {
+        this.operation = operation;
+    }
+
+    public Integer getEntityId() {
+        return entityId;
+    }
+
+    public void setEntityId(Integer entityId) {
+        this.entityId = entityId;
+    }
 
     @Override
     public boolean equals(Object o) {
