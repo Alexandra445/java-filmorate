@@ -36,7 +36,7 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleDataIntegrityViolation(DataIntegrityViolationException e) {
         return new ErrorResponse("Ошибка при работе с БД", e.getMessage());
     }
