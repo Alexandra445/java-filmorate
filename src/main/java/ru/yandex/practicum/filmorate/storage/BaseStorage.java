@@ -43,7 +43,7 @@ public class BaseStorage<T> {
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(query, Statement.NO_GENERATED_KEYS);
             for (int i = 0; i < params.length; i++) {
-                ps.setObject(i+ 1, params[i]);
+                ps.setObject(i + 1, params[i]);
             }
 
             return ps;

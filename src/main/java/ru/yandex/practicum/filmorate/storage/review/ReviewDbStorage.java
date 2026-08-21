@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.review;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -9,7 +8,6 @@ import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 @Repository

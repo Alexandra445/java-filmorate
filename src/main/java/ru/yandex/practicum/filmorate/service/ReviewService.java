@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.storage.review.ReviewMapper;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 
 import java.util.Collection;
-import java.util.Optional;
 
 @Slf4j
 @Service
