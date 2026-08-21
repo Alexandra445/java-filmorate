@@ -153,7 +153,8 @@ public class FilmService {
         return filmStorage.getCommonFilms(userId, friendId);
     }
 
-    public void delete(Integer id) {
+    public void deleteFilm(Integer id) {
+        getFilm(id);
         filmStorage.delete(id);
     }
 }
