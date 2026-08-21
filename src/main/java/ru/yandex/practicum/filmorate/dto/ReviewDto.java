@@ -9,6 +9,6 @@ public class ReviewDto {
     private Boolean isPositive;
     private Long userId;
     private Long filmId;
-    private Long useful;
+    private long useful;
 
 }
