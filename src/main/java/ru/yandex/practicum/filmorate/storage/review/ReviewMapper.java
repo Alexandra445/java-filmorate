@@ -19,22 +19,36 @@ public class ReviewMapper {
 
     public static ReviewDto mapToReviewDto(Review review) {
         ReviewDto reviewDto = new ReviewDto();
+
         reviewDto.setReviewId(review.getReviewId());
         reviewDto.setContent(review.getContent());
         reviewDto.setUserId(review.getUserId());
         reviewDto.setFilmId(review.getFilmId());
         reviewDto.setIsPositive(review.getIsPositive());
-        reviewDto.setUseful(reviewDto.getUseful());
+
+        // ВАЖНО: берём useful из Review, а не из пустого ReviewDto
+        reviewDto.setUseful(review.getUseful());
+
         return reviewDto;
     }
 
-    public static Review updateFields(Review reviewToUpdate, UpdateReviewRequest updateReviewRequest) {
+    public static Review updateFields(
+            Review reviewToUpdate,
+            UpdateReviewRequest updateReviewRequest) {
+
         if (updateReviewRequest.getIsPositive() != null) {
-            reviewToUpdate.setIsPositive(updateReviewRequest.getIsPositive());
+            reviewToUpdate.setIsPositive(
+                    updateReviewRequest.getIsPositive()
+            );
         }
-        if (updateReviewRequest.getContent() != null && !updateReviewRequest.getContent().isBlank()) {
-            reviewToUpdate.setContent(updateReviewRequest.getContent());
+
+        if (updateReviewRequest.getContent() != null
+                && !updateReviewRequest.getContent().isBlank()) {
+            reviewToUpdate.setContent(
+                    updateReviewRequest.getContent()
+            );
         }
+
         return reviewToUpdate;
     }
 }

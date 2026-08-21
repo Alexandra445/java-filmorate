@@ -34,11 +34,11 @@ public class ReviewService {
         validateFields(newReviewRequest);
 
         if (newReviewRequest.getUserId() == null) {
-            throw new NotFoundException("Пользователь не найден");
+            throw new ValidationException("Пользователь не может быть null");
         }
 
         if (newReviewRequest.getFilmId() == null) {
-            throw new NotFoundException("Фильм не найден");
+            throw new ValidationException("Фильм не может быть null");
         }
 
         Review review = ReviewMapper.mapToReview(newReviewRequest);
