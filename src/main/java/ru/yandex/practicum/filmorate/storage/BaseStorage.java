@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.exception.ReturnGeneratedIdException;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class BaseStorage<T> {
@@ -64,5 +65,9 @@ public class BaseStorage<T> {
 
     protected List<T> findMany(String query, Object... params) {
         return jdbcTemplate.query(query, rowMapper, params);
+    }
+
+    protected Optional<T> findAny(String query, Object... params) {
+        return Optional.ofNullable(jdbcTemplate.queryForObject(query, rowMapper, params));
     }
 }

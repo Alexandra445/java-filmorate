@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.storage.BaseStorage;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Qualifier("reviewDbStorage")
@@ -62,6 +63,24 @@ public class ReviewDbStorage extends BaseStorage<Review> implements ReviewStorag
             LIMIT ?;
             """;
 
+    private static final String FIND_REVIEW_BY_ID = """
+            SELECT r.*, COALESCE(likes.cnt, 0) - COALESCE(dislikes.cnt, 0) AS rating
+            FROM reviews AS r
+            LEFT JOIN (
+                SELECT review_id, COUNT(*) AS cnt
+                FROM reviews_evaluation
+                WHERE review_evaluation = TRUE
+                GROUP BY review_id
+            ) AS likes ON likes.review_id = r.id
+            LEFT JOIN (
+                SELECT review_id, COUNT(*) AS cnt
+                FROM reviews_evaluation
+                WHERE review_evaluation = FALSE
+                GROUP BY review_id
+            ) AS dislikes ON dislikes.review_id = r.id
+            WHERE r.id = ?;
+            """;
+
     private static final String DELETE_EVALUATION = "DELETE FROM reviews_evaluation " +
             "WHERE review_id = ? AND user_id = ?;";
     private static final String DELETE_LIKE = "DELETE FROM reviews_evaluation " +
@@ -81,7 +100,7 @@ public class ReviewDbStorage extends BaseStorage<Review> implements ReviewStorag
     public Review addReview(Review review) {
         Long id = insert(ADD_REVIEW,
                 review.getContent(),
-                review.isPositive(),
+                review.getIsPositive(),
                 review.getUserId(),
                 review.getFilmId());
         review.setId(id);
@@ -92,7 +111,7 @@ public class ReviewDbStorage extends BaseStorage<Review> implements ReviewStorag
     public Review uppdateReview(Review review) {
         update(UPDATE_REVIEW,
                 review.getContent(),
-                review.isPositive(),
+                review.getIsPositive(),
                 review.getId());
         return review;
     }
@@ -110,6 +129,11 @@ public class ReviewDbStorage extends BaseStorage<Review> implements ReviewStorag
     @Override
     public Collection<Review> findAllReviews(int count) {
         return findMany(FIND_ALL_REVIEWS, count);
+    }
+
+    @Override
+    public Optional<Review> findReviewById(Long reviewId) {
+        return findAny(FIND_REVIEW_BY_ID, reviewId);
     }
 
     @Override

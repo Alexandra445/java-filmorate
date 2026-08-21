@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.review;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface ReviewStorage {
 
@@ -15,4 +16,6 @@ public interface ReviewStorage {
     Collection<Review> findReviewsByFilmId(Long filmId, int count);
 
     Collection<Review> findAllReviews(int count);
+
+    Optional<Review> findReviewById(Long reviewId);
 }
