@@ -184,4 +184,22 @@ public class FilmService {
 
         return filmStorage.getFilmsByDirector(directorId, sortBy);
     }
+
+    public Collection<Film> searchFilms(String query, String by) {
+
+        if (query == null || query.isBlank()) {
+            throw new ValidationException("Поисковый запрос не должен быть пустым");
+        }
+
+        if (!"title".equals(by)
+                && !"director".equals(by)
+                && !"director,title".equals(by)
+                && !"title,director".equals(by)) {
+            throw new ValidationException(
+                    "Параметр by должен быть title, director или director,title"
+            );
+        }
+
+        return filmStorage.searchFilms(query, by);
+    }
 }

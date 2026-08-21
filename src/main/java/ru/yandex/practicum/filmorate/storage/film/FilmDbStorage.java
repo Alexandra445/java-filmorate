@@ -291,6 +291,110 @@ public class FilmDbStorage implements FilmStorage {
         return films;
     }
 
+    @Override
+    public Collection<Film> searchFilms(String query, String by) {
+
+        String searchPattern = "%" + query.toLowerCase() + "%";
+
+        String sql;
+
+        if ("title".equals(by)) {
+
+            sql = """
+                SELECT f.*
+                FROM films f
+                WHERE LOWER(f.name) LIKE ?
+                ORDER BY (
+                    SELECT COUNT(*)
+                    FROM likes l
+                    WHERE l.film_id = f.id
+                ) DESC
+                """;
+
+            Collection<Film> films = jdbcTemplate.query(
+                    sql,
+                    mapper,
+                    searchPattern
+            );
+
+            for (Film film : films) {
+                loadMpa(film);
+                loadGenres(film);
+                loadDirectors(film);
+            }
+
+            return films;
+
+        } else if ("director".equals(by)) {
+
+            sql = """
+                SELECT f.*
+                FROM films f
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM film_directors fd
+                    JOIN directors d ON d.id = fd.director_id
+                    WHERE fd.film_id = f.id
+                      AND LOWER(d.name) LIKE ?
+                )
+                ORDER BY (
+                    SELECT COUNT(*)
+                    FROM likes l
+                    WHERE l.film_id = f.id
+                ) DESC
+                """;
+
+            Collection<Film> films = jdbcTemplate.query(
+                    sql,
+                    mapper,
+                    searchPattern
+            );
+
+            for (Film film : films) {
+                loadMpa(film);
+                loadGenres(film);
+                loadDirectors(film);
+            }
+
+            return films;
+
+        } else {
+
+            sql = """
+                SELECT f.*
+                FROM films f
+                WHERE LOWER(f.name) LIKE ?
+                   OR EXISTS (
+                       SELECT 1
+                       FROM film_directors fd
+                       JOIN directors d ON d.id = fd.director_id
+                       WHERE fd.film_id = f.id
+                         AND LOWER(d.name) LIKE ?
+                   )
+                ORDER BY (
+                    SELECT COUNT(*)
+                    FROM likes l
+                    WHERE l.film_id = f.id
+                ) DESC
+                """;
+
+            Collection<Film> films = jdbcTemplate.query(
+                    sql,
+                    mapper,
+                    searchPattern,
+                    searchPattern
+            );
+
+            for (Film film : films) {
+                loadMpa(film);
+                loadGenres(film);
+                loadDirectors(film);
+            }
+
+            return films;
+        }
+    }
+
     private void loadMpa(Film film) {
 
         String sql = """
