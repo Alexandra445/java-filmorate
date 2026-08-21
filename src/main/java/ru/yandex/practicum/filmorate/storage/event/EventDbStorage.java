@@ -38,13 +38,13 @@ public class EventDbStorage implements EventStorage {
     }
 
     private Event mapRowToEvent(ResultSet rs, int rowNum) throws SQLException {
-        return new Event(
-                rs.getInt("event_id"),
-                rs.getLong("timestamp"),
-                rs.getInt("user_id"),
-                EventType.valueOf(rs.getString("event_type")),
-                Operation.valueOf(rs.getString("operation")),
-                rs.getInt("entity_id")
-        );
+        Event event = new Event();
+        event.setEventId(rs.getInt("event_id"));
+        event.setTimestamp(rs.getLong("timestamp"));
+        event.setUserId(rs.getInt("user_id"));
+        event.setEventType(EventType.valueOf(rs.getString("event_type")));
+        event.setOperation(Operation.valueOf(rs.getString("operation")));
+        event.setEntityId(rs.getInt("entity_id"));
+        return event;
     }
 }
