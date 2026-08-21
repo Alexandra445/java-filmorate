@@ -2,10 +2,12 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.NewReviewRequest;
 import ru.yandex.practicum.filmorate.dto.ReviewDto;
 import ru.yandex.practicum.filmorate.dto.UpdateReviewRequest;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ReviewNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
@@ -31,8 +33,21 @@ public class ReviewService {
     public ReviewDto addReview(NewReviewRequest newReviewRequest) {
         validateFields(newReviewRequest);
 
+        if (newReviewRequest.getUserId() == null) {
+            throw new NotFoundException("Пользователь не найден");
+        }
+
+        if (newReviewRequest.getFilmId() == null) {
+            throw new NotFoundException("Фильм не найден");
+        }
+
         Review review = ReviewMapper.mapToReview(newReviewRequest);
-        review = reviewStorage.addReview(review);
+
+        try {
+            review = reviewStorage.addReview(review);
+        } catch (DataIntegrityViolationException e) {
+            throw new NotFoundException("Пользователь или фильм не найден");
+        }
 
         eventStorage.addEvent(new Event(
                 null,
@@ -50,8 +65,13 @@ public class ReviewService {
         Review updatedReview = reviewStorage
                 .findReviewById(updateReviewRequest.getReviewId())
                 .orElseThrow(() -> {
-                    log.debug("Отзыва с id = {} не существует", updateReviewRequest.getReviewId());
-                    return new ReviewNotFoundException("Отзыв для обновления не найден");
+                    log.debug(
+                            "Отзыва с id = {} не существует",
+                            updateReviewRequest.getReviewId()
+                    );
+                    return new ReviewNotFoundException(
+                            "Отзыв для обновления не найден"
+                    );
                 });
 
         ReviewMapper.updateFields(updatedReview, updateReviewRequest);
@@ -72,12 +92,19 @@ public class ReviewService {
     public void deleteReview(Long reviewId) {
         Review review = reviewStorage.findReviewById(reviewId)
                 .orElseThrow(() -> {
-                    log.debug("Отзыва с id = {} не существует", reviewId);
-                    return new ReviewNotFoundException("Отзыв для удаления не был найден");
+                    log.debug(
+                            "Отзыва с id = {} не существует",
+                            reviewId
+                    );
+                    return new ReviewNotFoundException(
+                            "Отзыв для удаления не был найден"
+                    );
                 });
 
         if (!reviewStorage.deleteReview(reviewId)) {
-            throw new ReviewNotFoundException("Отзыв для удаления не был найден");
+            throw new ReviewNotFoundException(
+                    "Отзыв для удаления не был найден"
+            );
         }
 
         eventStorage.addEvent(new Event(
@@ -94,8 +121,13 @@ public class ReviewService {
         return ReviewMapper.mapToReviewDto(
                 reviewStorage.findReviewById(reviewId)
                         .orElseThrow(() -> {
-                            log.debug("Отзыва с указанным id не существует");
-                            return new ReviewNotFoundException("Отзыва не существует");
+                            log.debug(
+                                    "Отзыва с id = {} не существует",
+                                    reviewId
+                            );
+                            return new ReviewNotFoundException(
+                                    "Отзыва не существует"
+                            );
                         })
         );
     }
@@ -129,8 +161,17 @@ public class ReviewService {
     }
 
     private void validateFields(NewReviewRequest reviewRequest) {
-        if (reviewRequest.getContent() == null || reviewRequest.getContent().isBlank()) {
-            throw new ValidationException("Содержимое отзыва не может быть пустым");
+        if (reviewRequest.getContent() == null
+                || reviewRequest.getContent().isBlank()) {
+            throw new ValidationException(
+                    "Содержимое отзыва не может быть пустым"
+            );
+        }
+
+        if (reviewRequest.getIsPositive() == null) {
+            throw new ValidationException(
+                    "Поле isPositive не может быть null"
+            );
         }
     }
 }
