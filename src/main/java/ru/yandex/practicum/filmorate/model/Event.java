@@ -1,15 +1,25 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
-@com.fasterxml.jackson.annotation.JsonAutoDetect(fieldVisibility = com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY)
 public class Event {
-
+    @JsonProperty("eventId")
     private Integer eventId;
+
+    @JsonProperty("timestamp")
     private Long timestamp;
+
+    @JsonProperty("userId")
     private Integer userId;
+
+    @JsonProperty("eventType")
     private EventType eventType;
+
+    @JsonProperty("operation")
     private Operation operation;
+
+    @JsonProperty("entityId")
     private Integer entityId;
 
     public Event() {
@@ -24,36 +34,23 @@ public class Event {
         this.entityId = entityId;
     }
 
-    @com.fasterxml.jackson.annotation.JsonProperty("eventId")
-    public Integer getEventId() {
-        return eventId;
-    }
+    public Integer getEventId() { return eventId; }
+    public void setEventId(Integer eventId) { this.eventId = eventId; }
 
-    @com.fasterxml.jackson.annotation.JsonProperty("timestamp")
-    public Long getTimestamp() {
-        return timestamp;
-    }
+    public Long getTimestamp() { return timestamp; }
+    public void setTimestamp(Long timestamp) { this.timestamp = timestamp; }
 
-    @com.fasterxml.jackson.annotation.JsonProperty("userId")
-    public Integer getUserId() {
-        return userId;
-    }
+    public Integer getUserId() { return userId; }
+    public void setUserId(Integer userId) { this.userId = userId; }
 
-    @com.fasterxml.jackson.annotation.JsonProperty("eventType")
-    public EventType getEventType() {
-        return eventType;
-    }
+    public EventType getEventType() { return eventType; }
+    public void setEventType(EventType eventType) { this.eventType = eventType; }
 
-    @com.fasterxml.jackson.annotation.JsonProperty("operation")
-    public Operation getOperation() {
-        return operation;
-    }
+    public Operation getOperation() { return operation; }
+    public void setOperation(Operation operation) { this.operation = operation; }
 
-    @com.fasterxml.jackson.annotation.JsonProperty("entityId")
-    public Integer getEntityId() {
-        return entityId;
-    }
-
+    public Integer getEntityId() { return entityId; }
+    public void setEntityId(Integer entityId) { this.entityId = entityId; }
 
     @Override
     public boolean equals(Object o) {
