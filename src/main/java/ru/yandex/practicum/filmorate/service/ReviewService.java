@@ -3,28 +3,50 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.NewReviewRequest;
 import ru.yandex.practicum.filmorate.dto.ReviewDto;
 import ru.yandex.practicum.filmorate.dto.UpdateReviewRequest;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ReviewNotFoundException;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewEvaluationStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewMapper;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ReviewService {
     private final ReviewStorage reviewStorage;
     private final ReviewEvaluationStorage reviewEvaluationStorage;
+    private final UserStorage userStorage;
+    private final FilmStorage filmStorage;
 
+    public ReviewService(ReviewStorage reviewStorage,
+                         ReviewEvaluationStorage reviewEvaluationStorage,
+                         @Qualifier("userDbStorage") UserStorage userStorage,
+                         @Qualifier("filmDbStorage") FilmStorage filmStorage) {
+        this.reviewStorage = reviewStorage;
+        this.reviewEvaluationStorage = reviewEvaluationStorage;
+        this.userStorage = userStorage;
+        this.filmStorage = filmStorage;
+    }
 
     public ReviewDto addReview(NewReviewRequest newReviewRequest) {
+        if (userStorage.findById(newReviewRequest.getUserId().intValue()) == null) {
+            throw new UserNotFoundException("Пользователь не существует");
+        }
+        if (filmStorage.findById(newReviewRequest.getFilmId().intValue()) == null) {
+            throw new NotFoundException("Фильм не существует");
+        }
+
         validateFields(newReviewRequest);
         Review review = ReviewMapper.mapToReview(newReviewRequest);
         review = reviewStorage.addReview(review);
@@ -88,6 +110,9 @@ public class ReviewService {
     private void validateFields(NewReviewRequest reviewRequest) {
         if (reviewRequest.getContent() == null || reviewRequest.getContent().isBlank()) {
             throw new ValidationException("Содержимое отзыва не может быть пустым");
+        }
+        if (reviewRequest.getIsPositive() == null) {
+            throw new ValidationException("Отзыв должен содержать оценку");
         }
     }
 }
