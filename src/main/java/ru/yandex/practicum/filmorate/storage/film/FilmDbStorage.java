@@ -154,18 +154,32 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> getPopularFilms(Integer count) {
+    public Collection<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT f.* FROM films f " +
+                        "LEFT JOIN likes l ON f.id = l.film_id "
+        );
 
-        String sql = """
-                SELECT f.*
-                FROM films f
-                LEFT JOIN likes l ON f.id = l.film_id
-                GROUP BY f.id
-                ORDER BY COUNT(l.user_id) DESC
-                LIMIT ?
-                """;
+        if (genreId != null) {
+            sql.append("JOIN film_genres fg ON f.id = fg.film_id AND fg.genre_id = ? ");
+        }
 
-        Collection<Film> films = jdbcTemplate.query(sql, mapper, count);
+        if (year != null) {
+            sql.append("WHERE EXTRACT(YEAR FROM f.release_date) = ? ");
+        }
+
+        sql.append("GROUP BY f.id ORDER BY COUNT(l.user_id) DESC LIMIT ?");
+
+        java.util.List<Object> params = new java.util.ArrayList<>();
+        if (genreId != null) {
+            params.add(genreId);
+        }
+        if (year != null) {
+            params.add(year);
+        }
+        params.add(count);
+
+        Collection<Film> films = jdbcTemplate.query(sql.toString(), mapper, params.toArray());
 
         for (Film film : films) {
             loadMpa(film);
@@ -174,6 +188,7 @@ public class FilmDbStorage implements FilmStorage {
 
         return films;
     }
+
 
     private void loadMpa(Film film) {
         String sql = """
@@ -206,5 +221,24 @@ public class FilmDbStorage implements FilmStorage {
             genre.setName(rs.getString("name"));
             return genre;
         }, film.getId())));
+    }
+
+    @Override
+    public Collection<Film> getCommonFilms(Integer userId, Integer friendId) {
+        String sql = "SELECT f.* FROM films f " +
+                "JOIN likes l1 ON f.id = l1.film_id AND l1.user_id = ? " +
+                "JOIN likes l2 ON f.id = l2.film_id AND l2.user_id = ? " +
+                "LEFT JOIN likes l ON f.id = l.film_id " +
+                "GROUP BY f.id " +
+                "ORDER BY COUNT(l.user_id) DESC";
+
+        Collection<Film> films = jdbcTemplate.query(sql, mapper, userId, friendId);
+
+        for (Film film : films) {
+            loadMpa(film);
+            loadGenres(film);
+        }
+
+        return films;
     }
 }
