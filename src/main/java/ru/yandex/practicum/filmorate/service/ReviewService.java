@@ -59,6 +59,7 @@ public class ReviewService {
                     return new ReviewNotFoundException("Отзыв для обновления не найден");
                 });
         ReviewMapper.updateFields(updatedReview, updateReviewRequest);
+        reviewStorage.uppdateReview(updatedReview);
         return ReviewMapper.mapToReviewDto(updatedReview);
     }
 
