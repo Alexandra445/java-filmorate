@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage;
 import org.apache.commons.lang3.RandomStringUtils;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -31,15 +30,5 @@ public class ObjectCreator {
         film.setMpa(rating);
         film.setGenres(new HashSet<>());
         return film;
-    }
-
-    public static Review generateRandomReview(long userId, long filmId) {
-        Review review = new Review();
-        review.setContent(RandomStringUtils.randomAlphabetic(20));
-        review.setIsPositive(false);
-        review.setUserId(userId);
-        review.setFilmId(filmId);
-
-        return review;
     }
 }

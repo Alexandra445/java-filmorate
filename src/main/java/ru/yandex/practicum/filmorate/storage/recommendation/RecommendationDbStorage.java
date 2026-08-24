@@ -2,13 +2,8 @@ package ru.yandex.practicum.filmorate.storage.recommendation;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmRowMapper;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
-
-import java.util.LinkedHashSet;
 
 import java.util.Collection;
 
@@ -57,89 +52,8 @@ public class RecommendationDbStorage implements RecommendationStorage {
 
     @Override
     public Collection<Film> getRecommendedFilms(Long userId) {
-
-        Collection<Film> films = jdbcTemplate.query(
-                FIND_RECOMMEND_FILMS,
-                filmRowMapper,
-                userId,
-                userId,
-                userId
-        );
-
-        for (Film film : films) {
-            loadMpa(film);
-            loadGenres(film);
-            loadDirectors(film);
-        }
-
-        return films;
+        return jdbcTemplate.query(FIND_RECOMMEND_FILMS, filmRowMapper, userId, userId, userId);
     }
 
-    private void loadMpa(Film film) {
 
-        String sql = """
-            SELECT id, name
-            FROM mpa
-            WHERE id = ?
-            """;
-
-        film.setMpa(jdbcTemplate.queryForObject(
-                sql,
-                (rs, rowNum) -> {
-                    Mpa mpa = new Mpa();
-                    mpa.setId(rs.getInt("id"));
-                    mpa.setName(rs.getString("name"));
-                    return mpa;
-                },
-                film.getMpa().getId()
-        ));
-    }
-
-    private void loadGenres(Film film) {
-
-        String sql = """
-            SELECT g.id, g.name
-            FROM genres g
-            JOIN film_genres fg ON g.id = fg.genre_id
-            WHERE fg.film_id = ?
-            ORDER BY g.id
-            """;
-
-        film.setGenres(new LinkedHashSet<>(
-                jdbcTemplate.query(
-                        sql,
-                        (rs, rowNum) -> {
-                            Genre genre = new Genre();
-                            genre.setId(rs.getInt("id"));
-                            genre.setName(rs.getString("name"));
-                            return genre;
-                        },
-                        film.getId()
-                )
-        ));
-    }
-
-    private void loadDirectors(Film film) {
-
-        String sql = """
-            SELECT d.id, d.name
-            FROM directors d
-            JOIN film_directors fd ON d.id = fd.director_id
-            WHERE fd.film_id = ?
-            ORDER BY d.id
-            """;
-
-        film.setDirectors(new LinkedHashSet<>(
-                jdbcTemplate.query(
-                        sql,
-                        (rs, rowNum) -> {
-                            Director director = new Director();
-                            director.setId(rs.getInt("id"));
-                            director.setName(rs.getString("name"));
-                            return director;
-                        },
-                        film.getId()
-                )
-        ));
-    }
 }
