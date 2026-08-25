@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.RecommendationService;
 
 import java.util.Collection;
 
@@ -16,6 +18,7 @@ import java.util.Collection;
 public class UserController {
 
     private final UserService userService;
+    private final RecommendationService recommendationService;
 
     @GetMapping
     public Collection<User> findAll() {
@@ -70,5 +73,10 @@ public class UserController {
     public Collection<Event> getFeed(@PathVariable Integer id) {
         log.info("Получен запрос на генерацию ленты событий пользователя с id: {}", id);
         return userService.getFeed(id);
+    }
+
+    @GetMapping("/{id}/recommendations")
+    public Collection<Film> findRecommendationsForUsers(@PathVariable Long id) {
+        return recommendationService.findRecommendationsForUser(id);
     }
 }

@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Review {
-    private Long reviewId;
+    private Long id;
     private String content;
     private Boolean isPositive;
     private Long userId;
     private Long filmId;
-    private int useful;
+    private long useful;
 }

@@ -3,21 +3,16 @@ package ru.yandex.practicum.filmorate.storage.review;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.storage.BaseStorage;
 
-import java.sql.PreparedStatement;
 import java.util.Collection;
 import java.util.Optional;
 
 @Repository
 @Qualifier("reviewDbStorage")
-public class ReviewDbStorage implements ReviewStorage, ReviewEvaluationStorage {
-
-    private final JdbcTemplate jdbcTemplate;
-    private final RowMapper<Review> rowMapper;
+public class ReviewDbStorage extends BaseStorage<Review> implements ReviewStorage, ReviewEvaluationStorage {
 
     private static final String ADD_REVIEW =
             "INSERT INTO reviews(content, is_positive, user_id, film_id) " +
@@ -105,143 +100,79 @@ public class ReviewDbStorage implements ReviewStorage, ReviewEvaluationStorage {
                     "AND review_evaluation = FALSE";
 
     private static final String PUT_EVALUATION =
-            "INSERT INTO reviews_evaluation(" +
-                    "review_id, user_id, review_evaluation) " +
+            "INSERT INTO reviews_evaluation(review_id, user_id, review_evaluation) " +
                     "VALUES (?, ?, ?)";
 
-    public ReviewDbStorage(JdbcTemplate jdbcTemplate,
-                           RowMapper<Review> rowMapper) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.rowMapper = rowMapper;
+    public ReviewDbStorage(JdbcTemplate jdbcTemplate, RowMapper<Review> rowMapper) {
+        super(jdbcTemplate, rowMapper);
     }
 
     @Override
     public Review addReview(Review review) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-
-        jdbcTemplate.update(connection -> {
-            PreparedStatement stmt = connection.prepareStatement(
-                    ADD_REVIEW,
-                    new String[]{"id"}
-            );
-
-            stmt.setString(1, review.getContent());
-            stmt.setBoolean(2, review.getIsPositive());
-            stmt.setLong(3, review.getUserId());
-            stmt.setLong(4, review.getFilmId());
-
-            return stmt;
-        }, keyHolder);
-
-        if (keyHolder.getKey() != null) {
-            review.setReviewId(keyHolder.getKey().longValue());
-        }
-
+        Long id = insert(
+                ADD_REVIEW,
+                review.getContent(),
+                review.getIsPositive(),
+                review.getUserId(),
+                review.getFilmId()
+        );
+        review.setId(id);
         return review;
     }
 
     @Override
     public Review uppdateReview(Review review) {
-        jdbcTemplate.update(
+        update(
                 UPDATE_REVIEW,
                 review.getContent(),
                 review.getIsPositive(),
-                review.getReviewId()
+                review.getId()
         );
-
         return review;
     }
 
     @Override
     public boolean deleteReview(Long reviewId) {
-        int rows = jdbcTemplate.update(
-                DELETE_REVIEW,
-                reviewId
-        );
-
-        return rows > 0;
+        return delete(DELETE_REVIEW, reviewId);
     }
 
     @Override
     public Collection<Review> findReviewsByFilmId(Long filmId, int count) {
-        return jdbcTemplate.query(
-                FIND_REVIEWS_BY_FILM,
-                rowMapper,
-                filmId,
-                count
-        );
+        return findMany(FIND_REVIEWS_BY_FILM, filmId, count);
     }
 
     @Override
     public Collection<Review> findAllReviews(int count) {
-        return jdbcTemplate.query(
-                FIND_ALL_REVIEWS,
-                rowMapper,
-                count
-        );
+        return findMany(FIND_ALL_REVIEWS, count);
     }
 
     @Override
     public Optional<Review> findReviewById(Long reviewId) {
-        return jdbcTemplate.query(
-                        FIND_REVIEW_BY_ID,
-                        rowMapper,
-                        reviewId
-                )
-                .stream()
-                .findFirst();
+        return findAny(FIND_REVIEW_BY_ID, reviewId);
     }
 
     @Override
     public void putLike(Long reviewId, Long userId) {
-        jdbcTemplate.update(
-                PUT_EVALUATION,
-                reviewId,
-                userId,
-                true
-        );
+        insertWithoutId(PUT_EVALUATION, reviewId, userId, true);
     }
 
     @Override
     public void putDislike(Long reviewId, Long userId) {
-        jdbcTemplate.update(
-                PUT_EVALUATION,
-                reviewId,
-                userId,
-                false
-        );
+        insertWithoutId(PUT_EVALUATION, reviewId, userId, false);
     }
 
     @Override
     public boolean deleteLike(Long reviewId, Long userId) {
-        int rows = jdbcTemplate.update(
-                DELETE_LIKE,
-                reviewId,
-                userId
-        );
-
-        return rows > 0;
+        return delete(DELETE_LIKE, reviewId, userId);
     }
 
     @Override
     public boolean deleteDislike(Long reviewId, Long userId) {
-        int rows = jdbcTemplate.update(
-                DELETE_DISLIKE,
-                reviewId,
-                userId
-        );
-
-        return rows > 0;
+        return delete(DELETE_DISLIKE, reviewId, userId);
     }
 
     @Override
     public boolean deleteEvaluation(Long reviewId, Long userId) {
-        int rows = jdbcTemplate.update(
-                DELETE_EVALUATION,
-                reviewId,
-                userId
-        );
-
-        return rows > 0;
+        return delete(DELETE_EVALUATION, reviewId, userId);
     }
 }

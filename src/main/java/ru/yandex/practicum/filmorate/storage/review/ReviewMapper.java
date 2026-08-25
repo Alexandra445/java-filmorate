@@ -20,13 +20,11 @@ public class ReviewMapper {
     public static ReviewDto mapToReviewDto(Review review) {
         ReviewDto reviewDto = new ReviewDto();
 
-        reviewDto.setReviewId(review.getReviewId());
+        reviewDto.setReviewId(review.getId());
         reviewDto.setContent(review.getContent());
         reviewDto.setUserId(review.getUserId());
         reviewDto.setFilmId(review.getFilmId());
         reviewDto.setIsPositive(review.getIsPositive());
-
-        // ВАЖНО: берём useful из Review, а не из пустого ReviewDto
         reviewDto.setUseful(review.getUseful());
 
         return reviewDto;
