@@ -101,6 +101,14 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
+    public void delete(Integer id) {
+
+
+        jdbcTemplate.update("DELETE FROM users WHERE id=?", id);
+
+    }
+
+    @Override
     public void addFriend(Integer userId, Integer friendId) {
 
         String sql = """
@@ -156,6 +164,11 @@ public class UserDbStorage implements UserStorage {
         jdbcTemplate.update("DELETE FROM friends WHERE user_id = ? OR friend_id = ?", id, id);
         String deleteUserSql = "DELETE FROM users WHERE id = ?";
         jdbcTemplate.update(deleteUserSql, id);
+    }
+
+    @Override
+    public void delete(Integer id) {
+        jdbcTemplate.update("DELETE FROM users WHERE id = ?", id);
     }
 }
 

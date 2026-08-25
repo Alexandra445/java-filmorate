@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import org.springframework.http.HttpStatus;
+
 import java.util.Collection;
 
 @RestController
@@ -27,6 +27,20 @@ public class FilmController {
     @PutMapping
     public Film update(@RequestBody Film film) {
         return filmService.update(film);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public Collection<Film> getFilmsByDirector(
+            @PathVariable Integer directorId,
+            @RequestParam String sortBy) {
+        return filmService.getFilmsByDirector(directorId, sortBy);
+    }
+
+    @GetMapping("/search")
+    public Collection<Film> searchFilms(
+            @RequestParam String query,
+            @RequestParam String by) {
+        return filmService.searchFilms(query, by);
     }
 
     @GetMapping("/{id}")
@@ -58,8 +72,7 @@ public class FilmController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFilm(@PathVariable Integer id) {
-        filmService.deleteFilm(id);
+        filmService.delete(id);
     }
 }
