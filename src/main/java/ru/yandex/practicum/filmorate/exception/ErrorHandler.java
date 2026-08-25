@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.exception;
 
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -34,13 +33,6 @@ public class ErrorHandler {
                 e.getMessage()
         );
     }
-
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleDataIntegrityViolation(DataIntegrityViolationException e) {
-        return new ErrorResponse("Ошибка при работе с БД", e.getMessage());
-    }
-
 
 
     @ExceptionHandler(Exception.class)
