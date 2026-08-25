@@ -1,7 +1,9 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -9,6 +11,7 @@ import ru.yandex.practicum.filmorate.service.RecommendationService;
 
 import java.util.Collection;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -64,6 +67,12 @@ public class UserController {
     public void deleteUser(@PathVariable Integer id) {
 
         userService.deleteUser(id);
+    }
+
+    @GetMapping("/{id}/feed")
+    public Collection<Event> getFeed(@PathVariable Integer id) {
+        log.info("Получен запрос на генерацию ленты событий пользователя с id: {}", id);
+        return userService.getFeed(id);
     }
 
     @GetMapping("/{id}/recommendations")
