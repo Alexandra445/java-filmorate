@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.RecommendationService;
 
 import java.util.Collection;
 
@@ -13,7 +15,7 @@ import java.util.Collection;
 public class UserController {
 
     private final UserService userService;
-
+    private final RecommendationService recommendationService;
     @GetMapping
     public Collection<User> findAll() {
         return userService.findAll();

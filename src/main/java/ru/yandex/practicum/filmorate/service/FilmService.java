@@ -11,6 +11,8 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
+import ru.yandex.practicum.filmorate.model.Director;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -169,8 +171,6 @@ public class FilmService {
 
     public Collection<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
         return filmStorage.getPopularFilms(count, genreId, year);
-    public Collection<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
-        return filmStorage.getPopularFilms(count, genreId, year);
     }
 
     public Collection<Film> getCommonFilms(Integer userId, Integer friendId) {
@@ -182,9 +182,6 @@ public class FilmService {
         filmStorage.delete(id);
     }
 
-    public Collection<Film> getCommonFilms(Integer userId, Integer friendId) {
-        return filmStorage.getCommonFilms(userId, friendId);
-    }
 
     public void delete(Integer id) {
         filmStorage.delete(id);

@@ -286,25 +286,16 @@ public class FilmDbStorage implements FilmStorage {
         } else {
             orderBy = "COUNT(l.user_id) DESC";
         }
-    public Collection<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
-        StringBuilder sql = new StringBuilder(
-                "SELECT f.* FROM films f " +
-                        "LEFT JOIN likes l ON f.id = l.film_id "
-        );
-
-        if (genreId != null) {
-            sql.append("JOIN film_genres fg ON f.id = fg.film_id AND fg.genre_id = ? ");
-        }
 
         String sql = """
-            SELECT f.*
-            FROM films f
-            JOIN film_directors fd ON f.id = fd.film_id
-            LEFT JOIN likes l ON f.id = l.film_id
-            WHERE fd.director_id = ?
-            GROUP BY f.id
-            ORDER BY %s
-            """.formatted(orderBy);
+                SELECT f.*
+                FROM films f
+                JOIN film_directors fd ON f.id = fd.film_id
+                LEFT JOIN likes l ON f.id = l.film_id
+                WHERE fd.director_id = ?
+                GROUP BY f.id
+                ORDER BY %s
+                """.formatted(orderBy);
 
         Collection<Film> films = jdbcTemplate.query(sql, mapper, directorId);
 
@@ -327,36 +318,21 @@ public class FilmDbStorage implements FilmStorage {
         if ("title".equals(by)) {
 
             sql = """
-                SELECT f.*
-                FROM films f
-                WHERE LOWER(f.name) LIKE ?
-                ORDER BY (
-                    SELECT COUNT(*)
-                    FROM likes l
-                    WHERE l.film_id = f.id
-                ) DESC
-                """;
-        if (year != null) {
-            sql.append("WHERE EXTRACT(YEAR FROM f.release_date) = ? ");
-        }
+                    SELECT f.*
+                    FROM films f
+                    WHERE LOWER(f.name) LIKE ?
+                    ORDER BY (
+                        SELECT COUNT(*)
+                        FROM likes l
+                        WHERE l.film_id = f.id
+                    ) DESC
+                    """;
 
             Collection<Film> films = jdbcTemplate.query(
                     sql,
                     mapper,
                     searchPattern
             );
-        sql.append("GROUP BY f.id ORDER BY COUNT(l.user_id) DESC LIMIT ?");
-
-        java.util.List<Object> params = new java.util.ArrayList<>();
-        if (genreId != null) {
-            params.add(genreId);
-        }
-        if (year != null) {
-            params.add(year);
-        }
-        params.add(count);
-
-        Collection<Film> films = jdbcTemplate.query(sql.toString(), mapper, params.toArray());
 
             for (Film film : films) {
                 loadMpa(film);
@@ -369,21 +345,21 @@ public class FilmDbStorage implements FilmStorage {
         } else if ("director".equals(by)) {
 
             sql = """
-                SELECT f.*
-                FROM films f
-                WHERE EXISTS (
-                    SELECT 1
-                    FROM film_directors fd
-                    JOIN directors d ON d.id = fd.director_id
-                    WHERE fd.film_id = f.id
-                      AND LOWER(d.name) LIKE ?
-                )
-                ORDER BY (
-                    SELECT COUNT(*)
-                    FROM likes l
-                    WHERE l.film_id = f.id
-                ) DESC
-                """;
+                    SELECT f.*
+                    FROM films f
+                    WHERE EXISTS (
+                        SELECT 1
+                        FROM film_directors fd
+                        JOIN directors d ON d.id = fd.director_id
+                        WHERE fd.film_id = f.id
+                          AND LOWER(d.name) LIKE ?
+                    )
+                    ORDER BY (
+                        SELECT COUNT(*)
+                        FROM likes l
+                        WHERE l.film_id = f.id
+                    ) DESC
+                    """;
 
             Collection<Film> films = jdbcTemplate.query(
                     sql,
@@ -402,22 +378,22 @@ public class FilmDbStorage implements FilmStorage {
         } else {
 
             sql = """
-                SELECT f.*
-                FROM films f
-                WHERE LOWER(f.name) LIKE ?
-                   OR EXISTS (
-                       SELECT 1
-                       FROM film_directors fd
-                       JOIN directors d ON d.id = fd.director_id
-                       WHERE fd.film_id = f.id
-                         AND LOWER(d.name) LIKE ?
-                   )
-                ORDER BY (
-                    SELECT COUNT(*)
-                    FROM likes l
-                    WHERE l.film_id = f.id
-                ) DESC
-                """;
+                    SELECT f.*
+                    FROM films f
+                    WHERE LOWER(f.name) LIKE ?
+                       OR EXISTS (
+                           SELECT 1
+                           FROM film_directors fd
+                           JOIN directors d ON d.id = fd.director_id
+                           WHERE fd.film_id = f.id
+                             AND LOWER(d.name) LIKE ?
+                       )
+                    ORDER BY (
+                        SELECT COUNT(*)
+                        FROM likes l
+                        WHERE l.film_id = f.id
+                    ) DESC
+                    """;
 
             Collection<Film> films = jdbcTemplate.query(
                     sql,
@@ -435,7 +411,6 @@ public class FilmDbStorage implements FilmStorage {
             return films;
         }
     }
-
 
 
     private void loadMpa(Film film) {
@@ -523,5 +498,10 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         return films;
+    }
+
+    @Override
+    public Collection<Film> getPopularFilms(Integer count) {
+        return getPopularFilms(count, null, null);
     }
 }
