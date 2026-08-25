@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
@@ -23,17 +25,20 @@ public class FilmService {
     private final UserStorage userStorage;
     private final GenreStorage genreStorage;
     private final MpaStorage mpaStorage;
+    private final DirectorStorage directorStorage;
 
     public FilmService(
             @Qualifier("filmDbStorage") FilmStorage filmStorage,
             @Qualifier("userDbStorage") UserStorage userStorage,
             @Qualifier("genreDbStorage") GenreStorage genreStorage,
-            @Qualifier("mpaDbStorage") MpaStorage mpaStorage
+            @Qualifier("mpaDbStorage") MpaStorage mpaStorage,
+            @Qualifier("directorDbStorage") DirectorStorage directorStorage
     ) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.genreStorage = genreStorage;
         this.mpaStorage = mpaStorage;
+        this.directorStorage = directorStorage;
     }
 
     public Collection<Film> findAll() {
@@ -74,7 +79,8 @@ public class FilmService {
             throw new ValidationException("Описание больше 200 символов");
         }
 
-        if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate() == null
+                || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new ValidationException("Дата релиза некорректна");
         }
 
@@ -92,8 +98,26 @@ public class FilmService {
 
         if (film.getGenres() != null) {
             for (Genre genre : film.getGenres()) {
+
+                if (genre.getId() == null) {
+                    throw new ValidationException("Id жанра должен быть указан");
+                }
+
                 if (genreStorage.findById(genre.getId()) == null) {
                     throw new NotFoundException("Жанр не найден");
+                }
+            }
+        }
+
+        if (film.getDirectors() != null) {
+            for (Director director : film.getDirectors()) {
+
+                if (director.getId() == null) {
+                    throw new ValidationException("Id режиссёра должен быть указан");
+                }
+
+                if (directorStorage.findById(director.getId()) == null) {
+                    throw new NotFoundException("Режиссёр не найден");
                 }
             }
         }
@@ -127,7 +151,6 @@ public class FilmService {
         log.info("Пользователь {} поставил лайк фильму {}", userId, filmId);
     }
 
-
     public void removeLike(Integer filmId, Integer userId) {
 
         Film film = filmStorage.findById(filmId);
@@ -147,5 +170,36 @@ public class FilmService {
 
     public Collection<Film> getPopularFilms(Integer count) {
         return filmStorage.getPopularFilms(count);
+    }
+
+    public Collection<Film> getFilmsByDirector(Integer directorId, String sortBy) {
+
+        if (directorStorage.findById(directorId) == null) {
+            throw new NotFoundException("Режиссёр не найден");
+        }
+
+        if (!"year".equals(sortBy) && !"likes".equals(sortBy)) {
+            throw new ValidationException("sortBy должен быть year или likes");
+        }
+
+        return filmStorage.getFilmsByDirector(directorId, sortBy);
+    }
+
+    public Collection<Film> searchFilms(String query, String by) {
+
+        if (query == null || query.isBlank()) {
+            throw new ValidationException("Поисковый запрос не должен быть пустым");
+        }
+
+        if (!"title".equals(by)
+                && !"director".equals(by)
+                && !"director,title".equals(by)
+                && !"title,director".equals(by)) {
+            throw new ValidationException(
+                    "Параметр by должен быть title, director или director,title"
+            );
+        }
+
+        return filmStorage.searchFilms(query, by);
     }
 }
