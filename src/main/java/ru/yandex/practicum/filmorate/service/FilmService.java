@@ -5,14 +5,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
+import ru.yandex.practicum.filmorate.model.Director;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -151,6 +151,7 @@ public class FilmService {
         log.info("Пользователь {} поставил лайк фильму {}", userId, filmId);
     }
 
+
     public void removeLike(Integer filmId, Integer userId) {
 
         Film film = filmStorage.findById(filmId);
@@ -175,6 +176,12 @@ public class FilmService {
     public Collection<Film> getCommonFilms(Integer userId, Integer friendId) {
         return filmStorage.getCommonFilms(userId, friendId);
     }
+
+    public void deleteFilm(Integer id) {
+        getFilm(id);
+        filmStorage.delete(id);
+    }
+
 
     public void delete(Integer id) {
         filmStorage.delete(id);
