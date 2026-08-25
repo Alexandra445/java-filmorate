@@ -170,6 +170,14 @@ public class FilmService {
     }
 
     public Collection<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        if (count == null || count <= 0) {
+            throw new ValidationException("Количество популярных фильмов должно быть больше 0");
+        }
+
+        if (year != null && year < 1895) {
+            throw new ValidationException("Год должен быть не меньше 1895");
+        }
+
         return filmStorage.getPopularFilms(count, genreId, year);
     }
 
