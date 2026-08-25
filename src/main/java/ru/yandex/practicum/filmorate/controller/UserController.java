@@ -16,6 +16,7 @@ public class UserController {
 
     private final UserService userService;
     private final RecommendationService recommendationService;
+
     @GetMapping
     public Collection<User> findAll() {
         return userService.findAll();
