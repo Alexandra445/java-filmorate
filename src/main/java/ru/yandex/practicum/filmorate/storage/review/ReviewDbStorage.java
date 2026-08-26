@@ -133,6 +133,11 @@ public class ReviewDbStorage extends BaseStorage<Review> implements ReviewStorag
 
     @Override
     public boolean deleteReview(Long reviewId) {
+        delete(
+                "DELETE FROM reviews_evaluation WHERE review_id = ?",
+                reviewId
+        );
+
         return delete(DELETE_REVIEW, reviewId);
     }
 

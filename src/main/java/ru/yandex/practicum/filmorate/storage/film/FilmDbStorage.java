@@ -212,20 +212,32 @@ public class FilmDbStorage implements FilmStorage {
                 "DELETE FROM films WHERE id=?",
                 id
         );
-        jdbcTemplate.update("DELETE FROM likes WHERE film_id = ?", id);
-        jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?", id);
-        jdbcTemplate.update("DELETE FROM films WHERE id = ?", id);
     }
 
     @Override
     public void addLike(Integer filmId, Integer userId) {
 
-        String sql = """
+        String checkSql = """
+            SELECT COUNT(*)
+            FROM likes
+            WHERE film_id = ? AND user_id = ?
+            """;
+
+        Integer count = jdbcTemplate.queryForObject(
+                checkSql,
+                Integer.class,
+                filmId,
+                userId
+        );
+
+        if (count == 0) {
+            String sql = """
                 INSERT INTO likes (film_id, user_id)
                 VALUES (?, ?)
                 """;
 
-        jdbcTemplate.update(sql, filmId, userId);
+            jdbcTemplate.update(sql, filmId, userId);
+        }
     }
 
     @Override
@@ -495,6 +507,7 @@ public class FilmDbStorage implements FilmStorage {
         for (Film film : films) {
             loadMpa(film);
             loadGenres(film);
+            loadDirectors(film);
         }
 
         return films;

@@ -41,6 +41,8 @@ public class DirectorService {
 
     public Director update(Director director) {
 
+        validateDirector(director);
+
         if (director.getId() == null) {
             throw new ValidationException("Id должен быть указан");
         }
@@ -48,8 +50,6 @@ public class DirectorService {
         if (directorStorage.findById(director.getId()) == null) {
             throw new NotFoundException("Режиссёр не найден");
         }
-
-        validateDirector(director);
 
         return directorStorage.update(director);
     }
