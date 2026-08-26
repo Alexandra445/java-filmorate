@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
@@ -52,11 +53,13 @@ public class FilmService {
         return filmStorage.findAll();
     }
 
+    @Transactional
     public Film create(Film film) {
         validateFilm(film);
         return filmStorage.create(film);
     }
 
+    @Transactional
     public Film update(Film film) {
 
         if (film.getId() == null) {
@@ -194,13 +197,9 @@ public class FilmService {
         return filmStorage.getCommonFilms(userId, friendId);
     }
 
+    @Transactional
     public void deleteFilm(Integer id) {
         getFilm(id);
-        filmStorage.delete(id);
-    }
-
-
-    public void delete(Integer id) {
         filmStorage.delete(id);
     }
 
