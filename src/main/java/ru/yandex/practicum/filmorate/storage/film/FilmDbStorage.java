@@ -119,7 +119,7 @@ public class FilmDbStorage implements FilmStorage {
             }
         }
 
-        return film;
+        return findById(film.getId());
     }
 
     @Override
@@ -187,7 +187,7 @@ public class FilmDbStorage implements FilmStorage {
             }
         }
 
-        return film;
+        return findById(film.getId());
     }
 
     @Override
